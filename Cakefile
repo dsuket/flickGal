@@ -7,7 +7,8 @@ _ = require 'underscore'
 
 option '-w', '--watch', 'continue to watch the files and rebuild them when they change'
 
-
+JAVA = 'java'
+COMPILER = '~/lib/compiler.jar'
 
 # Start develop.
 task 'build', 'Build coffeescripts.', (options) ->
@@ -35,6 +36,6 @@ task 'minify', 'Minify script.', (options) ->
           a = result.match(/\/\*[\s\S]+?\*\//)
           if a and a[0]
             licence = a[0]
-            muffin.exec "java -jar ~/compiler.jar --js=#{matches[1]}.js --js_output_file=#{matches[1]}.min.js --compilation_level=ADVANCED_OPTIMIZATIONS --output_wrapper \"#{licence}\n(function(){%output%})();\""
+            muffin.exec "#{JAVA} -jar #{COMPILER} --js=#{matches[1]}.js --js_output_file=#{matches[1]}.min.js --compilation_level=ADVANCED_OPTIMIZATIONS --output_wrapper \"#{licence}\n(function(){%output%})();\""
 
 
