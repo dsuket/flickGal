@@ -90,6 +90,9 @@ $(function(){
 | ------------ | ------------- | ------------ |
 | infinitCarousel | false  | If true and you have prev/next elements, the last item slides to the first item and vise versa.  |
 | lockScroll | true  | Lock horizontal scroll while sliding. If you have large images in .item element, you may want this fasle. |
+| lockDirection | false  | When you start dragging on one axis the other is locked and you can keep dragging only in two directions (up/down or left/right). (refer to: iScroll) |
+| scrollMargin | 0  | untile you drag this pix size, scroll does not start. If you use lockDirection, set this option. |
+| vsnap | false  | set true to snap to container element vertically. |
 
 
 ## Licence
