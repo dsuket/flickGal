@@ -252,7 +252,7 @@
                 }
                 flickScrolling = true;
                 if (options['vsnap']) {
-                  scrollTo = $container.offset().top;
+                  scrollTo = $container['offset']()['top'];
                   if (window.scrollY !== scrollTo) {
                     window.scrollTo(0, scrollTo);
                   }
@@ -287,7 +287,7 @@
             startX = isMobile ? touch.pageX : e.clientX;
             startY = isMobile ? touch.pageY : e.clientY;
             startLeft = getTranslateX() - containerOffsetLeft - containerBaseX;
-            borderLeftWidth = $container.css('border-left-width');
+            borderLeftWidth = $container['css']('border-left-width');
             if (borderLeftWidth != null) {
               borderLeftWidth = parseInt(borderLeftWidth);
               startLeft -= borderLeftWidth;

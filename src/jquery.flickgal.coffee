@@ -213,7 +213,7 @@ window['jQuery']['fn']['flickGal'] = (options) ->
               # start flick scroll
               flickScrolling = true
               if options['vsnap']
-                scrollTo = $container.offset().top
+                scrollTo = $container['offset']()['top']
                 if window.scrollY != scrollTo
                   window.scrollTo(0, scrollTo)
             e.preventDefault()  if options['lockDirection']
@@ -234,7 +234,7 @@ window['jQuery']['fn']['flickGal'] = (options) ->
           startX = if isMobile then touch.pageX else e.clientX
           startY = if isMobile then touch.pageY else e.clientY
           startLeft = getTranslateX() - containerOffsetLeft - containerBaseX
-          borderLeftWidth = $container.css('border-left-width')
+          borderLeftWidth = $container['css']('border-left-width')
           if borderLeftWidth?
             borderLeftWidth = parseInt(borderLeftWidth)
             startLeft -= borderLeftWidth
