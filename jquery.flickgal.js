@@ -108,7 +108,10 @@
     */
     options = $['extend']({
       'infinitCarousel': false,
-      'lockScroll': true
+      'lockScroll': true,
+      'lockDirection': false,
+      'scrollMargin': 0,
+      'vsnap': false
     }, options);
     /*
         iterate each element in jQuery object
@@ -119,7 +122,7 @@
             private variables
       */
 
-      var $box, $container, $flickBox, $items, $nav, $navA, $navChildren, $next, $prev, STATE, box, boxHeight, boxWidth, cd, containerBaseX, containerOffsetLeft, disableArrow, endX, getGeckoTranslateX, getTranslateX, itemLength, itemWidth, maxLeft, minLeft, moveToIndex, nextTappedHandler, prevTappedHandler, redefineLeftOffset, startLeft, startTime, startX, state, touchEvents, touchHandler, transitionEndHandler, useArrows, useNav;
+      var $box, $container, $flickBox, $items, $nav, $navA, $navChildren, $next, $prev, STATE, box, boxHeight, boxWidth, cd, containerBaseX, containerOffsetLeft, disableArrow, endX, flickScrolling, getGeckoTranslateX, getTranslateX, itemLength, itemWidth, maxLeft, minLeft, moveToIndex, nextTappedHandler, pageScrolling, prevTappedHandler, redefineLeftOffset, startLeft, startTime, startX, startY, state, touchEvents, touchHandler, transitionEndHandler, useArrows, useNav;
       $flickBox = $(this);
       $container = $('.container', $flickBox)['css']({
         overflow: 'hidden'
@@ -210,9 +213,12 @@
       */
 
       startX = 0;
+      startY = 0;
       endX = 0;
       startTime = 0;
       startLeft = 0;
+      pageScrolling = false;
+      flickScrolling = false;
       STATE = {
         IS_MOVING: 1,
         IS_EDGE: 2,
@@ -221,15 +227,40 @@
       };
       state = 0;
       touchHandler = function(e) {
-        var diffX, touch;
+        var borderLeftWidth, diffX, diffY, scrollTo, touch, x, y;
         touch = isMobile ? e.touches[0] : e;
         switch (e.type) {
           case EventType.MOVE:
             if (options['lockScroll']) {
               e.preventDefault();
             }
+            x = isMobile ? touch.pageX : e.clientX;
+            y = isMobile ? touch.pageY : e.clientY;
+            if (pageScrolling) {
+              return;
+            }
             if (state & STATE.IS_MOVING) {
-              diffX = touch.pageX - startX;
+              diffX = x - startX;
+              diffY = y - startY;
+              if (!flickScrolling) {
+                if (Math.abs(diffY) > options['scrollMargin']) {
+                  pageScrolling = true;
+                  return;
+                }
+                if (Math.abs(diffX) < options['scrollMargin']) {
+                  return;
+                }
+                flickScrolling = true;
+                if (options['vsnap']) {
+                  scrollTo = $container.offset().top;
+                  if (window.scrollY !== scrollTo) {
+                    window.scrollTo(0, scrollTo);
+                  }
+                }
+              }
+              if (options['lockDirection']) {
+                e.preventDefault();
+              }
               if (state & STATE.IS_EDGE && (((state & STATE.IS_FIRST) && diffX > 0) || ((state & STATE.IS_LAST) && diffX < 0))) {
                 diffX = diffX / 2;
               }
@@ -240,6 +271,8 @@
             if (!isMobile) {
               e.preventDefault();
             }
+            pageScrolling = false;
+            flickScrolling = false;
             state |= STATE.IS_MOVING;
             if (cd === 0) {
               state |= STATE.IS_FIRST;
@@ -252,7 +285,13 @@
             }
             startTime = (new Date()).getTime();
             startX = isMobile ? touch.pageX : e.clientX;
+            startY = isMobile ? touch.pageY : e.clientY;
             startLeft = getTranslateX() - containerOffsetLeft - containerBaseX;
+            borderLeftWidth = $container.css('border-left-width');
+            if (borderLeftWidth != null) {
+              borderLeftWidth = parseInt(borderLeftWidth);
+              startLeft -= borderLeftWidth;
+            }
             if ($box['hasClass']('moving')) {
               return $box['removeClass']('moving')['css'](CSS_TRANSFORM, getCssTranslateValue(containerBaseX + startLeft));
             }
@@ -260,8 +299,10 @@
           case EventType.END:
             startLeft = 0;
             state = 0;
-            endX = isMobile ? e.changedTouches[0].pageX : e.clientX;
-            return moveToIndex();
+            if (flickScrolling) {
+              endX = isMobile ? e.changedTouches[0].pageX : e.clientX;
+              return moveToIndex();
+            }
         }
       };
       transitionEndHandler = function() {
