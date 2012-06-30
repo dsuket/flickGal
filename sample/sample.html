@@ -38,12 +38,24 @@
     width: 200px;
     height: 280px;
     padding: 10px;
+    position: relative;
   }
   .yourElement .moving {
     /* You can change transition-duration of course. */
     transition: transform .2s ease-out;
     -webkit-transition: -webkit-transform .2s ease-out;
     -moz-transition: -moz-transform .2s ease-out;
+  }
+  .yourElement .item span {
+    position: absolute;
+    width: 180px;
+    padding: 10px;
+    left: 0;
+    bottom: 0;
+    text-align: right;
+    color: 
+    white;
+    font-size: 10px;
   }
   </style>
 </head>
@@ -54,9 +66,18 @@
   <div class="container"><!-- Flickable element (required) -->
     <div class="containerInner"><!-- (required) -->
       <!-- must have `item' for class name -->
-      <div id="sea01" class="item"><img alt="" src="01.jpg" /></div>
-      <div id="sea02" class="item"><img alt="" src="02.jpg" /></div>
-      <div id="sea03" class="item"><img alt="" src="03.jpg" /></div>
+      <div id="sea01" class="item">
+        <img alt="" src="01.jpg" />
+        <span>by ♀Μøỳαл_Bгεлл♂</span>
+      </div>
+      <div id="sea02" class="item">
+        <img alt="" src="02.jpg" />
+        <span>by jurvetson</span>
+      </div>
+      <div id="sea03" class="item">
+        <img alt="" src="03.jpg" />
+        <span>by phault</span>
+      </div>
     </div>
   </div>
   <div>
