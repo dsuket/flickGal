@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>Sample</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+  <script src="../src/jquery.flickgal.js"></script>
+  <!-- debug for weinre-->
+  <!--
+  <script>
+    var host = 'localhost';
+    var port = 8081;
+    //var host = location.hostname;
+    var url = 'http://' + host + ':' + port
+                + '/target/target-script-min.js#anonymous';
+    document.write('<script src="'+url+'"><\/script>');
+  </script>
+  -->
+
+  <script>
+  $(function(){
+    $(".yourElement").flickGal({
+      lockScroll: false,
+      lockDirection: true,
+      scrollMargin: 6,
+      vsnap: true
+    });
+  });
+  </script>
+  <style type="text/css">
+  /* This is required if you have <img> element in .item element. */
+  .yourElement .container {
+    background-color: #CCC;
+    border: solid 1px #999;
+  }
+  .yourElement .item {
+    width: 200px;
+    height: 280px;
+    padding: 10px;
+  }
+  .yourElement .moving {
+    /* You can change transition-duration of course. */
+    transition: transform .2s ease-out;
+    -webkit-transition: -webkit-transform .2s ease-out;
+    -moz-transition: -moz-transform .2s ease-out;
+  }
+  </style>
+</head>
+<body>
+
+<div class="yourElement"><!-- Main container -->
+  <h1>Flick Sample</h1>
+  <div class="container"><!-- Flickable element (required) -->
+    <div class="containerInner"><!-- (required) -->
+      <!-- must have `item' for class name -->
+      <div id="sea01" class="item"><img alt="" src="01.jpg" /></div>
+      <div id="sea02" class="item"><img alt="" src="02.jpg" /></div>
+      <div id="sea03" class="item"><img alt="" src="03.jpg" /></div>
+    </div>
+  </div>
+  <div>
+    <p>Sample Sample Sample</p>
+    <p>Sample Sample Sample</p>
+    <p>Sample Sample Sample</p>
+
+</div>
+  
+</body>
+</html>
+
