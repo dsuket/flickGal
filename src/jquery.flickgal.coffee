@@ -87,6 +87,9 @@ window['jQuery']['fn']['flickGal'] = (options) ->
   options = $['extend'](
     'infinitCarousel': false
     'lockScroll': true
+    'lockDirection': false
+    'scrollMargin': 0,
+    'vsnap': false
   , options)
   
 
@@ -174,9 +177,12 @@ window['jQuery']['fn']['flickGal'] = (options) ->
       implement core event handling
     ###
     startX = 0
+    startY = 0
     endX = 0
     startTime = 0
     startLeft = 0
+    pageScrolling = false
+    flickScrolling = false
 
     # Closer scope chain to refer, faster (maybe..).
     STATE =      
@@ -191,8 +197,26 @@ window['jQuery']['fn']['flickGal'] = (options) ->
       switch e.type
         when EventType.MOVE
           e.preventDefault()  if options['lockScroll']
+          x = if isMobile then touch.pageX else e.clientX
+          y = if isMobile then touch.pageY else e.clientY
+          return if pageScrolling
           if state & STATE.IS_MOVING
-            diffX = touch.pageX - startX
+            diffX = x - startX
+            diffY = y - startY
+            if !flickScrolling
+              if Math.abs(diffY) > options['scrollMargin']
+                # start page scroll
+                pageScrolling = true
+                return
+              if Math.abs(diffX) < options['scrollMargin']
+                return
+              # start flick scroll
+              flickScrolling = true
+              if options['vsnap']
+                scrollTo = $container.offset().top
+                if window.scrollY != scrollTo
+                  window.scrollTo(0, scrollTo)
+            e.preventDefault()  if options['lockDirection']
             if state & STATE.IS_EDGE and
               (((state & STATE.IS_FIRST) && diffX > 0) or
                ((state & STATE.IS_LAST)  && diffX < 0))
@@ -200,19 +224,27 @@ window['jQuery']['fn']['flickGal'] = (options) ->
             $box['css'] CSS_TRANSFORM, getCssTranslateValue(containerBaseX + startLeft + diffX)
         when EventType.START
           e.preventDefault()  unless isMobile
+          pageScrolling = false
+          flickScrolling = false
           state |= STATE.IS_MOVING
           state |= STATE.IS_FIRST  if cd is 0
           state |= STATE.IS_LAST   if cd is itemLength - 1
           state |= STATE.IS_EDGE   if state & STATE.IS_FIRST or state & STATE.IS_LAST
           startTime = (new Date()).getTime()
           startX = if isMobile then touch.pageX else e.clientX
+          startY = if isMobile then touch.pageY else e.clientY
           startLeft = getTranslateX() - containerOffsetLeft - containerBaseX
+          borderLeftWidth = $container.css('border-left-width')
+          if borderLeftWidth?
+            borderLeftWidth = parseInt(borderLeftWidth)
+            startLeft -= borderLeftWidth
           $box['removeClass']('moving')['css'] CSS_TRANSFORM, getCssTranslateValue(containerBaseX + startLeft)  if $box['hasClass']('moving')
         when EventType.END
           startLeft = 0
           state = 0
-          endX = if isMobile then e.changedTouches[0].pageX else e.clientX
-          moveToIndex()
+          if flickScrolling
+            endX = if isMobile then e.changedTouches[0].pageX else e.clientX
+            moveToIndex()
     
     transitionEndHandler = ->
       $box['removeClass'] 'moving'
