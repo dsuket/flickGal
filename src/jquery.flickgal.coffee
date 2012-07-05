@@ -88,8 +88,9 @@ window['jQuery']['fn']['flickGal'] = (options) ->
     'infinitCarousel': false
     'lockScroll': true
     'lockDirection': false
-    'scrollMargin': 0,
+    'scrollMargin': 0
     'vsnap': false
+    'vsnapAnimation': false
   , options)
   
 
@@ -201,27 +202,30 @@ window['jQuery']['fn']['flickGal'] = (options) ->
           y = if isMobile then touch.pageY else e.clientY
           return if pageScrolling
           if state & STATE.IS_MOVING
-            diffX = x - startX
-            diffY = y - startY
+            deltaX = x - startX
+            deltaY = y - startY
+            absDeltaX = Math.abs(deltaX)
+            absDeltaY = Math.abs(deltaY)
+            if absDeltaX < options['scrollMargin'] && absDeltaY < options['scrollMargin']
+              console.log("absDeltaX: " + absDeltaX + ", absDeltaY: " + absDeltaY);
+              return
             if !flickScrolling
-              if Math.abs(diffY) > options['scrollMargin']
-                # start page scroll
+              if absDeltaX > absDeltaY + 5
+                flickScrolling = true
+              else if absDeltaY > absDeltaY + 5
                 pageScrolling = true
                 return
-              if Math.abs(diffX) < options['scrollMargin']
+              else
                 return
               # start flick scroll
-              flickScrolling = true
               if options['vsnap']
-                scrollTo = $container['offset']()['top']
-                if window.scrollY != scrollTo
-                  window.scrollTo(0, scrollTo)
+                vsnap()
             e.preventDefault()  if options['lockDirection']
             if state & STATE.IS_EDGE and
-              (((state & STATE.IS_FIRST) && diffX > 0) or
-               ((state & STATE.IS_LAST)  && diffX < 0))
-              diffX = diffX / 2
-            $box['css'] CSS_TRANSFORM, getCssTranslateValue(containerBaseX + startLeft + diffX)
+              (((state & STATE.IS_FIRST) && deltaX > 0) or
+               ((state & STATE.IS_LAST)  && deltaX < 0))
+              deltaX = deltaX / 2
+            $box['css'] CSS_TRANSFORM, getCssTranslateValue(containerBaseX + startLeft + deltaX)
         when EventType.START
           e.preventDefault()  unless isMobile
           pageScrolling = false
@@ -246,6 +250,28 @@ window['jQuery']['fn']['flickGal'] = (options) ->
             endX = if isMobile then e.changedTouches[0].pageX else e.clientX
             moveToIndex()
     
+    vsnap = ->
+      top = $container['offset']()['top']
+      if window.scrollY != top
+        if options['vsnapAnimation']
+          duration = 300
+          deltaY = top - window.scrollY
+          fps = 1000/30;
+          loopCount = duration / fps
+          y = deltaY / loopCount
+          counter = 0;
+          scrollY = y;
+          timer = setInterval ->
+            window.scrollTo(0, scrollY)
+            if counter > loopCount
+              window.scrollTo(0, top)
+              clearInterval(timer)
+            scrollY += y
+            counter++
+          ,fps
+        else
+          window.scrollTo(0, top)
+
     transitionEndHandler = ->
       $box['removeClass'] 'moving'
     

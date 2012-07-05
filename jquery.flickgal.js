@@ -227,7 +227,7 @@
       };
       state = 0;
       touchHandler = function(e) {
-        var borderLeftWidth, diffX, diffY, scrollTo, touch, x, y;
+        var absDiffX, absDiffY, borderLeftWidth, diffX, diffY, scrollTo, touch, x, y;
         touch = isMobile ? e.touches[0] : e;
         switch (e.type) {
           case EventType.MOVE:
@@ -243,11 +243,9 @@
               diffX = x - startX;
               diffY = y - startY;
               if (!flickScrolling) {
-                if (Math.abs(diffY) > options['scrollMargin']) {
-                  pageScrolling = true;
-                  return;
-                }
-                if (Math.abs(diffX) < options['scrollMargin']) {
+                absDiffX = Math.abs(diffX);
+                absDiffY = Math.abs(diffY);
+                if (absDiffX < options['scrollMargin'] || absDiffY < options['scrollMargin']) {
                   return;
                 }
                 flickScrolling = true;
